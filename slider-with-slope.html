@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slider with slope</title>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/dom-proxy@2/browser.min.js"></script>
+    <script>
+      let { div, h1, input, watch, text, button } = domProxy
+
+      function app() {
+        return div({ id: 'app' }, [
+          h1({ textContent: 'Slider with slope' }),
+          slider(),
+        ])
+      }
+
+      function slider() {
+        let sliderInput = input({ type: 'range', step: 0.01 })
+        let sliderText = text()
+        watch(() => {
+          sliderText.textContent = sliderInput.value
+        })
+
+        let slopeSlider = input({
+          type: 'range',
+          style: { width: '5rem', transform: 'rotate(90deg)' },
+          min: -35,
+          max: +35,
+          value: 0,
+          step: 0.1,
+        })
+        let slopeText = text()
+        watch(() => {
+          let deg = slopeSlider.value
+          slopeText.textContent = deg
+          sliderInput.style.transform = `rotate(${deg}deg)`
+        })
+
+        function slide() {
+          sliderInput.value = +sliderInput.value + slopeSlider.value / 10
+          requestAnimationFrame(slide)
+        }
+        requestAnimationFrame(slide)
+
+        return div({ style: { display: 'flex' } }, [
+          div({}, [
+            div({ style: { textAlign: 'center' } }, [sliderText]),
+            sliderInput,
+          ]),
+          div({ style: { display: 'flex', alignItems: 'center' } }, [
+            slopeSlider,
+            div(
+              {
+                style: {
+                  marginInlineStart: '-0.5rem',
+                  marginInlineEnd: '1rem',
+                },
+              },
+              [slopeText],
+            ),
+            button({
+              textContent: 'stop',
+              onclick() {
+                slopeSlider.value = 0
+              },
+            }),
+          ]),
+        ])
+      }
+
+      document.body.appendChild(app().node)
+    </script>
+  </body>
+</html>
